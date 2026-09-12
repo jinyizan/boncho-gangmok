@@ -98,6 +98,9 @@
   .orig-sec .more{font-size:11px;color:var(--muted);margin-top:4px}
   .src{font-size:11px;color:var(--muted);background:var(--bg);border:1px solid var(--line);
     border-radius:8px;padding:8px 10px;line-height:1.6}
+  .notebox{font-size:12.5px;line-height:1.7;color:var(--ink);background:#eef4ee;
+    border:1px solid #d3e0d3;border-radius:10px;padding:10px 12px;margin-bottom:14px}
+  .notebox b{font-weight:700}
   mark{background:#fff3c4;border-radius:2px;padding:0 1px}
 </style>
 </head>
@@ -240,6 +243,12 @@
     if(h.entry){
       sSub.textContent = '本草綱目 · ' + h.entry + (h.source ? ' · ' + sourceLabel(h.source) : '');
       const order = h.secOrder && h.secOrder.length ? h.secOrder : Object.keys(h.secs||{});
+      if(h.note){
+        const nb = document.createElement('div');
+        nb.className = 'notebox';
+        nb.textContent = '對照注記 · ' + h.note;
+        sBody.appendChild(nb);
+      }
       if(!order.length){
         sBody.innerHTML = '<div class="src">원문 발췌를 불러오지 못했습니다.</div>';
       }
@@ -264,7 +273,12 @@
       sBody.appendChild(src);
     } else {
       sSub.textContent = '本草綱目 原文 準備中';
-      sBody.innerHTML = '<div class="orig-sec"><h4>案內</h4><p>해당 본초는 明代 이후에 유통이 확대된 품목으로, 《本草綱目》 正文에 독립 조문이 확인되지 않아 원문을 싣지 않았습니다. 교과서 목차상의 한글·한자명은 그대로 수록합니다.</p></div>';
+      const msg = h.note || '해당 본초는 明代 이후에 유통이 확대된 품목으로, 《本草綱目》 正文에 독립 조문이 확인되지 않아 원문을 싣지 않았습니다. 교과서 목차상의 한글·한자명은 그대로 수록합니다.';
+      sBody.innerHTML = '';
+      const nb = document.createElement('div');
+      nb.className = 'notebox';
+      nb.textContent = '對照注記 · ' + msg;
+      sBody.appendChild(nb);
     }
     sheet.classList.add('show'); backdrop.classList.add('show');
     document.body.style.overflow = 'hidden';
