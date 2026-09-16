@@ -167,7 +167,7 @@
     let shown = 0;
     data.chapters.forEach((c, ci)=>{
       const wrap = document.createElement('section');
-      wrap.className = 'chapter' + ((ci===0 && !kw) ? ' open' : (kw ? ' open' : ''));
+      wrap.className = 'chapter';
       const head = document.createElement('button');
       head.className = 'head'; head.type='button';
       const chHerbs = c.direct.length + c.sections.reduce((a,s)=>a+s.herbs.length,0);
