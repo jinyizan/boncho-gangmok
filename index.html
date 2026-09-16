@@ -93,9 +93,12 @@
   .notebox{font-size:12.5px;line-height:1.7;color:var(--ink);background:#eef4ee;
     border:1px solid #d3e0d3;border-radius:10px;padding:10px 12px;margin-bottom:14px}
   .notebox b{font-weight:700}
-  #segWrap{display:flex;gap:6px;margin-top:10px}
-  #segWrap button{flex:1;border:1px solid var(--line);background:var(--bg);color:var(--muted);
-    font-size:12.5px;border-radius:999px;padding:7px 0;cursor:pointer;letter-spacing:.1em}
+  #segWrap{display:flex;gap:6px;margin-top:10px;overflow-x:auto;padding-bottom:2px;
+    scrollbar-width:none}
+  #segWrap::-webkit-scrollbar{display:none}
+  #segWrap button{flex:none;border:1px solid var(--line);background:var(--bg);color:var(--muted);
+    font-size:12.5px;border-radius:999px;padding:7px 13px;cursor:pointer;letter-spacing:.1em;
+    font-family:"Noto Serif KR",serif}
   #segWrap button.on{background:var(--ink);border-color:var(--ink);color:#f2f5ef;font-weight:700}
   mark{background:#fff3c4;border-radius:2px;padding:0 1px}
 </style>
@@ -220,62 +223,63 @@
 
   function escapeHtml(s){return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
-  // ---- bottom sheet (譯文 우선, 原文 토글) ----
+  // ---- bottom sheet (섹션 탭 + 번역본 표시) ----
   const sheet = document.getElementById('sheet');
   const backdrop = document.getElementById('backdrop');
   const sKo = document.getElementById('sKo'), sHan = document.getElementById('sHan'),
         sSub = document.getElementById('sSub'), sBody = document.getElementById('sBody');
-  let sheetHerb = null, sheetMode = 'trans';
-  // segmented control (譯文/原文) — sheet head에 1회 삽입
+  let sheetHerb = null, sheetSec = null;
+  // section tabs (釋名·集解·氣味·主治·發明·修治·附方) — sheet head에 1회 삽입
   const segWrap = document.createElement('div');
   segWrap.id = 'segWrap';
-  segWrap.innerHTML = '<button type="button" data-m="trans" class="on">譯文</button><button type="button" data-m="orig">原文</button>';
-  segWrap.querySelectorAll('button').forEach(b=>b.addEventListener('click', ()=>{
-    sheetMode = b.dataset.m;
-    segWrap.querySelectorAll('button').forEach(x=>x.classList.toggle('on', x===b));
-    if(sheetHerb) renderSheetBody(sheetHerb);
-  }));
   document.querySelector('.sheet-head').appendChild(segWrap);
   function renderSheetBody(h){
     sBody.innerHTML = '';
-    const useTrans = sheetMode === 'trans' && h.trans;
     const order = h.secOrder && h.secOrder.length ? h.secOrder : Object.keys(h.secs||{});
+    if(!sheetSec || !order.includes(sheetSec)) sheetSec = order[0] || null;
+    segWrap.innerHTML = '';
+    order.forEach(k=>{
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = k;
+      b.classList.toggle('on', k===sheetSec);
+      b.addEventListener('click', ()=>{ sheetSec = k; renderSheetBody(h); });
+      segWrap.appendChild(b);
+    });
     if(h.note){
       const nb = document.createElement('div');
       nb.className = 'notebox';
       nb.textContent = '對照注記 · ' + h.note;
       sBody.appendChild(nb);
     }
-    if(!order.length){
-      sBody.innerHTML += '<div class="src">원문 발췌를 불러오지 못했습니다.</div>';
+    if(!sheetSec){
+      sBody.innerHTML += '<div class="src">발췌를 불러오지 못했습니다.</div>';
+      return;
     }
-    order.forEach(k=>{
-      const s = h.secs[k];
-      if(!s) return;
-      const div = document.createElement('div');
-      div.className = 'orig-sec';
-      const hh = document.createElement('h4'); hh.textContent = SEC_LABEL[k]||k;
-      const p = document.createElement('p');
-      p.textContent = (useTrans && h.trans[k]) ? h.trans[k] : s.text;
-      div.appendChild(hh); div.appendChild(p);
-      if(s.truncated){
-        const m = document.createElement('div'); m.className='more';
-        m.textContent = useTrans ? '※ 번역은 발췌 범위까지만 표시합니다.' : '※ 원문이 길어 일부만 표시합니다.';
-        div.appendChild(m);
-      }
-      sBody.appendChild(div);
-    });
+    const s = h.secs[sheetSec];
+    if(!s) return;
+    const div = document.createElement('div');
+    div.className = 'orig-sec';
+    const hh = document.createElement('h4'); hh.textContent = SEC_LABEL[sheetSec]||sheetSec;
+    const p = document.createElement('p');
+    p.textContent = (h.trans && h.trans[sheetSec]) ? h.trans[sheetSec] : s.text;
+    div.appendChild(hh); div.appendChild(p);
+    if(s.truncated){
+      const m = document.createElement('div'); m.className='more';
+      m.textContent = '※ 번역은 발췌 범위까지만 표시합니다.';
+      div.appendChild(m);
+    }
+    sBody.appendChild(div);
   }
   function openSheet(h){
     sheetHerb = h;
+    sheetSec = null;
     sKo.textContent = h.ko || '';
     sHan.textContent = h.han || '';
     sBody.innerHTML = '';
     if(h.entry){
       sSub.textContent = '本草綱目 · ' + h.entry + (h.source ? ' · ' + sourceLabel(h.source) : '');
-      segWrap.style.display = h.trans ? '' : 'none';
-      sheetMode = h.trans ? 'trans' : 'orig';
-      segWrap.querySelectorAll('button').forEach(x=>x.classList.toggle('on', x.dataset.m===sheetMode));
+      segWrap.style.display = '';
       renderSheetBody(h);
     } else {
       segWrap.style.display = 'none';
