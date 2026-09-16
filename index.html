@@ -280,11 +280,6 @@
       }
       sBody.appendChild(div);
     });
-    const src = document.createElement('div');
-    src.className = 'src';
-    src.textContent = (useTrans ? '譯文: 현대 한국어 번역 · 出典: ' : '出典: ') + '明·李時珍《本草綱目》 위키텍스트 「' + h.entry + '」條 발췌 · 파일 ' + (h.source||'');
-    sBody.appendChild(src);
-    document.querySelector('.sheet-body').scrollTop = 0;
   }
   function openSheet(h){
     sheetHerb = h;
