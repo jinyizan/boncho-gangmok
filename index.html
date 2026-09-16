@@ -23,20 +23,7 @@
   header.top h1{margin:0;font-size:22px;letter-spacing:.14em;font-weight:700;
     font-family:"Noto Serif KR","Songti SC",serif}
   header.top p{margin:6px 0 0;font-size:12.5px;color:#c9d4c9;letter-spacing:.02em}
-  header.top .meta{margin-top:10px;display:flex;gap:8px;align-items:center}
-  .pill{font-size:11px;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:3px 10px;color:#e8efe8}
-  /* search */
-  .searchbox{background:var(--ink);padding:0 16px 14px;position:sticky;top:0;z-index:19}
-  .searchbox .inner{background:#fff;border-radius:12px;display:flex;align-items:center;gap:8px;
-    padding:11px 14px;box-shadow:0 1px 0 rgba(30,58,47,.08)}
-  .searchbox input{border:0;outline:0;flex:1;font-size:15px;background:transparent;color:#22332b}
-  .searchbox input::placeholder{color:#9aa8a0}
-  .searchbox .count{font-size:12px;color:var(--muted);white-space:nowrap}
   main{padding:14px 14px 40px;flex:1}
-  .toolbar{display:flex;justify-content:space-between;align-items:center;margin:2px 2px 10px}
-  .toolbar span{font-size:12px;color:var(--muted)}
-  .toolbar button{border:1px solid var(--line);background:#fff;color:var(--ink-soft);
-    font-size:12px;border-radius:999px;padding:6px 12px;cursor:pointer}
   /* chapter accordion — uniform margins */
   .chapter{background:var(--card);border:1px solid var(--line);border-radius:14px;
     margin:0 0 12px;overflow:hidden}
@@ -113,15 +100,7 @@
   <header class="top">
     <h1>本草綱目</h1>
     <p>본초학 교과서 목차 · 모바일 본초 편람</p>
-    <div class="meta"><span class="pill" id="pillTotal">–</span><span class="pill">明 · 李時珍 原文·譯文 對照</span></div>
   </header>
-  <div class="searchbox">
-    <div class="inner">
-      <span aria-hidden="true">🔍</span>
-      <input id="q" type="search" placeholder="본초 검색 — 예: 마황 · 麻黃 · 감초" autocomplete="off">
-      <span class="count" id="qcount"></span>
-    </div>
-  </div>
   <main id="list"></main>
   <footer class="note">
     ※ 장(章) 표기는 ‘一 解表藥’처럼 한자 번호와 명칭만 노출합니다.<br>
@@ -148,12 +127,8 @@
 (function(){
   const data = window.BONCHO_DATA;
   const list = document.getElementById('list');
-  const q = document.getElementById('q');
-  const qcount = document.getElementById('qcount');
-  const pillTotal = document.getElementById('pillTotal');
   const total = data.meta.total;
   const nCh = data.chapters.length;
-  pillTotal.textContent = nCh + '章 · ' + total + '本草';
 
   const SEC_LABEL = {'釋名':'釋名','集解':'集解','氣味':'氣味','主治':'主治','發明':'發明','修治':'修治','附方':'附方'};
 
@@ -230,7 +205,6 @@
       d.className='empty'; d.textContent='검색 결과가 없습니다.';
       list.appendChild(d);
     }
-    qcount.textContent = kw ? shown + ' / ' + total : total + '種';
   }
 
   function escapeHtml(s){return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -335,22 +309,6 @@
     });
   })();
 
-  // toolbar: expand/collapse all
-  const bar = document.createElement('div');
-  bar.className = 'toolbar';
-  bar.innerHTML = '<span>章을 눌러 펼치기 · 본초를 눌러 原文 보기</span>';
-  const btn = document.createElement('button');
-  btn.textContent = '전체 펼치기';
-  let expanded = false;
-  btn.addEventListener('click', ()=>{
-    expanded = !expanded;
-    document.querySelectorAll('.chapter').forEach(el=>el.classList.toggle('open', expanded));
-    btn.textContent = expanded ? '전체 접기' : '전체 펼치기';
-  });
-  bar.appendChild(btn);
-  list.before(bar);
-
-  q.addEventListener('input', ()=>render(q.value));
   render('');
 })();
 </script>
