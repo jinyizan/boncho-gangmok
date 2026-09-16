@@ -28,7 +28,6 @@
   .searchbox .inner{background:#fff;border-radius:12px;display:flex;align-items:center;gap:8px;
     padding:11px 14px;box-shadow:0 1px 0 rgba(30,58,47,.08)}
   .searchbox input{border:0;outline:0;flex:1;font-size:15px;background:transparent;color:#22332b}
-  .searchbox .count{font-size:12px;color:var(--muted);white-space:nowrap}
   main{padding:14px 14px 40px;flex:1}
   /* chapter accordion — uniform margins */
   .chapter{background:var(--card);border:1px solid var(--line);border-radius:14px;
@@ -111,7 +110,6 @@
     <div class="inner">
       <span aria-hidden="true">🔍</span>
       <input id="q" type="search" placeholder="" autocomplete="off" aria-label="본초 검색">
-      <span class="count" id="qcount"></span>
     </div>
   </div>
   <main id="list"></main>
@@ -140,8 +138,6 @@
 (function(){
   const data = window.BONCHO_DATA;
   const list = document.getElementById('list');
-  const q = document.getElementById('q');
-  const qcount = document.getElementById('qcount');
   const total = data.meta.total;
   const nCh = data.chapters.length;
 
@@ -220,7 +216,6 @@
       d.className='empty'; d.textContent='검색 결과가 없습니다.';
       list.appendChild(d);
     }
-    qcount.textContent = kw ? shown + ' / ' + total : total + '種';
   }
 
   function escapeHtml(s){return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -325,7 +320,6 @@
     });
   })();
 
-  q.addEventListener('input', ()=>render(q.value));
   render('');
 })();
 </script>
